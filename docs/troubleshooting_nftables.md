@@ -204,7 +204,7 @@ Still no reachability from 192.168.4.110, so I started tracking the IP stack:
 Print transport protocol:
 
 ```bash
-	sudo ./trace -a -K -I linux/skbuff.h -I linux/ip.h \
+sudo ./trace -a -K -I linux/skbuff.h -I linux/ip.h \
    'ip_output(struct net *net, struct sock *sk, struct sk_buff *skb) "proto = %d", (int)((struct iphdr*)skb_network_header(skb))->protocol'
 ```
 
