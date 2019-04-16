@@ -46,8 +46,11 @@ libnftnl:
 		./configure --prefix $(DESTDIR); \
 		make -j && make install
 
-kernel_bpf_samples:
+kernel_bpf_samples: linux_headers_install
 	make LLC=/usr/bin/llc-6.0 -C $(PWD)/linux/samples/bpf -j
+
+linux_headers_install:
+	make -C $(PWD)/linux headers_install
 
 set_env: FORCE
 	cat <<- EOF > $@
