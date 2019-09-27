@@ -27,6 +27,9 @@ perf:
 bpftools:
 	make -j -C $(LINUXTOOLS)/bpf DESTDIR=$(DESTDIR) install bpftool_install
 
+libbpf:
+	make -j -C $(LINUXTOOLS)/lib/bpf DESTDIR=$(DESTDIR) install
+
 iproute2:
 	$(TOOLS)/iproute2/configure
 	make -j  -C $(TOOLS)/iproute2 DESTDIR=$(DESTDIR) install
