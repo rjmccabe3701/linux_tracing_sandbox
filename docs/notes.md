@@ -289,6 +289,23 @@ Detaching...
 ```
 
 
+## Getting iproute2 to recognize docker-generated network namespaces
+
+See this:
+   https://platform9.com/blog/container-namespaces-deep-dive-container-networking/
+
+Basically you just identify the PID for your container
+
+```
+   sudo ln -sf /proc/$(docker inspect -f '{{.State.Pid}}' "host-2")/ns/net /var/run/netns/host-2
+```
+
+Now you can do this:
+
+```
+   sudo ip netns exec host-2 ip address show
+```
+
 
 
 
