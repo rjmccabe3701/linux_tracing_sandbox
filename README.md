@@ -10,6 +10,8 @@ git clone https://git.kernel.org/pub/scm/network/iproute2/iproute2.git tools/ipr
 git clone https://github.com/iovisor/bcc.git tools/bcc
 #Kernel
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+#libbpf
+git clone https://github.com/libbpf/libbpf.git
 
 #Fixup versions
 #git -C tools/iproute2 remote add https://github.com/rjmccabe3701/iproute2.git

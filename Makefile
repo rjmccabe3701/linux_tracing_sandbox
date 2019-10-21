@@ -35,7 +35,7 @@ bpftools:
 	make -j -C $(LINUXTOOLS)/bpf QUIET_CC= EXTRA_CFLAGS=$(EXTRA_CFLAGS) DESTDIR=$(DESTDIR) install bpftool_install
 
 libbpf:
-	make -j -C $(LINUXTOOLS)/lib/bpf EXTRA_CFLAGS=$(EXTRA_CFLAGS) DESTDIR=$(DESTDIR) install install_headers
+	make -j -C $(TOOLS)/libbpf/src BUILD_STATIC_ONLY=y DESTDIR=$(DESTDIR) install
 
 iproute2:
 	$(TOOLS)/iproute2/configure
