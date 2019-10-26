@@ -29,7 +29,7 @@ While the later approach is more attractive to mortals, this method has a few hu
    in the kernel samples to actually load the eBPF programs.  The ``*_user.c`` programs will do something like
    ``load_bpf_file('/path/to/compiled/eBPF_prog.o``).  This method is responsible for parsing the ELF section,
    loading the program/maps into the kernel (the kernel returns a file descriptor to each) and much more.
-   On particular aspect that is confusing is how a map's file descriptor is inserted into the clang-generated
+   One particular aspect that is confusing is how a map's file descriptor is inserted into the clang-generated
    object file for a particular program.  For example:
 
 
@@ -98,9 +98,59 @@ To build just run ``make`` in this directory.  Then run ``test_load.exe``.  Afte
 
 ```
 
-Both the program and map have been pined:
+Both the program and map have been pinned:
 
 ```bash
 % ls /sys/fs/bpf/my_test/
-dummy_socket_filter  my_map
+bwMonitorMap  dummy_socket_filter  tailcallMap
 ```
+
+The ``bwMonitorMap`` is pinned so that external programs can monitor the traffic flowing
+through the interface.  For example:
+
+
+```bash
+% bpftool map dump id 655
+key: 00 00 00 00  value: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+key: 01 00 00 00  value: 66 00 00 00 00 00 00 00  bc 25 00 00 00 00 00 00
+key: 02 00 00 00  value: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+Found 3 elements
+```
+
+Or with [this](swig) python application
+
+```ipython
+In [1]: import TableReader; t = TableReader.TableReader(); V = t.getTable()
+
+In [2]: print(V[1].pkts)
+102
+```
+
+The ``tailcallMap`` allows adding tailcalls dynamically.
+
+Note this at the bottom of the [socket_filter](test_kern.c) method:
+
+```c
+   bpf_tail_call(skb, &tailcallMap, 0);
+   bpf_printk("No tailcall registered!\n");
+```
+
+If no tailcalls have been registered, that ``No tailcall registered!`` line will hit.
+
+By running the ``add_tailcall.exe`` utility you will see (from cat-ting ``/sys/kernel/tracing/trace_pipe``)
+that [this](tailcall_kern.c) method is called.
+
+This simple example doesn't illustrate the power of this technique; I imaging its
+
+very useful if you want to attach dynamic eBPF programs to a qdisc filter:
+
+```
+tc filter ... bpf <TrampolineBpfMethod> ...
+```
+
+If this ``TrampolineBpfMethod`` has a tailcall hooks then you could modify this filtering
+behavior *without* having to do touch the qdisc settings.
+
+
+
+

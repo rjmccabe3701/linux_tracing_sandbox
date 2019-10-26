@@ -3,6 +3,14 @@ official package of any Linux distribution yet.  It does seem to use a fair bit 
 until it becomes an official tool, I can pilfer its source to do what I want.
 
 
+# Get running kernel's eBPF capabilities:
+
+```bash
+bpftool feature probe kernel
+```
+
+# Random examples
+
 Let's try just loading our Clang-compiled snippet:
 
 ```c
@@ -113,4 +121,5 @@ filter protocol all pref 49152 bpf chain 0 handle 0x1 test_kern.o:[dummy_socket_
 
 
 *NOTE: I cannot figure out how to get ``tc filter ...`` to take a ``object-pined`` arg
+
 

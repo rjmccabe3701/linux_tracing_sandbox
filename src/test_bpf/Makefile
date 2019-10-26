@@ -1,12 +1,15 @@
 LLC ?= llc
 CLANG ?= clang
-
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 INCLUDE_PATHS := /usr/local/include /usr/local/include /usr/include
+# INCLUDE_PATHS += /usr/include/bcc/compat
 
 COMMON_FLAGS := $(foreach dir,$(INCLUDE_PATHS),-I$(TRACE_INSTALL_DIR)/$(dir))
 LD_FLAGS = -L$(TRACE_INSTALL_DIR)/usr/lib64
 
-%_kern.o: %_kern.c
+all: MK_BUILD_DIR build/test_load.exe build/add_tailcall.exe build/_TableReader.so
+
+build/%_kern.o: %_kern.c
 	$(CLANG) $(NOSTDINC_FLAGS) $(COMMON_FLAGS) \
 	$(EXTRA_CFLAGS) -D__KERNEL__ -Wno-unused-value -Wno-pointer-sign \
 		-Wno-compare-distinct-pointer-types \
@@ -16,9 +19,28 @@ LD_FLAGS = -L$(TRACE_INSTALL_DIR)/usr/lib64
 		-O2 -emit-llvm -c $< -o -| $(LLC) -march=bpf -filetype=obj -o $@
 
 
-test_load.exe: test_kern.o test_load.c
-	$(CC) -g -O0 $(COMMON_FLAGS) test_load.c -lbpf -lelf -o $@ $(LD_FLAGS)
+build/test_load.exe: build/test_kern.o test_load.cpp
+	$(CXX) -std=c++17 -g -O0 $(COMMON_FLAGS) test_load.cpp -lbpf -lelf -lbcc \
+		-o $@ $(LD_FLAGS)
+
+build/add_tailcall.exe: build/tailcall_kern.o add_tailcall.cpp
+	$(CXX) -std=c++17 -g -O0 $(COMMON_FLAGS) add_tailcall.cpp -lbpf -lelf -lbcc \
+		-o $@ $(LD_FLAGS)
+
+build/TableReader.o: swig/TableReader.cpp
+	$(CXX) -std=c++17 -fPIC -g -O0 -c $(COMMON_FLAGS) swig/TableReader.cpp -o $@
+
+build/_TableReader.so: build/TableReader.o swig/TableReader.i
+	swig -c++ -python -o build/TableReader_wrap.cxx swig/TableReader.i && \
+	$(CXX) $(COMMON_FLAGS) -c -std=c++17 -I/usr/include/python3.6 -I$(ROOT_DIR)/swig -fPIC -g \
+			-O0 build/TableReader_wrap.cxx -o build/TableReader_wrap.o && \
+	$(CXX) -Xlinker -export-dynamic $(COMMON_FLAGS) -std=c++17 -shared -fPIC -g -O0 build/TableReader.o build/TableReader_wrap.o \
+			-lpython3.6m -lbpf -lbcc -o build/_TableReader.so
+
+.PHONY: MK_BUILD_DIR
+
+MK_BUILD_DIR:
+	mkdir -p $(ROOT_DIR)/build
 
 clean:
-	rm -rf *.o
-	rm -f *.exe
+	rm -rf $(ROOT_DIR)/build
