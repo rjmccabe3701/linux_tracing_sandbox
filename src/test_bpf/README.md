@@ -80,7 +80,7 @@ bpftool can do.
 these examples**.
 
 
-# Running example:
+# Running the example:
 
 To build just run ``make`` in this directory.  Then run ``test_load.exe``.  After doing this you should see:
 
@@ -119,10 +119,11 @@ Found 3 elements
 
 Or with [this](swig) python application
 
-```ipython
-In [1]: import TableReader; t = TableReader.TableReader(); V = t.getTable()
-
-In [2]: print(V[1].pkts)
+```python
+>>> import TableReader
+>>> t = TableReader.TableReader()
+>>> V = t.getTable()
+>>> print(V[1].pkts)
 102
 ```
 
@@ -135,22 +136,14 @@ Note this at the bottom of the [socket_filter](test_kern.c) method:
    bpf_printk("No tailcall registered!\n");
 ```
 
-If no tailcalls have been registered, that ``No tailcall registered!`` line will hit.
+If no tailcalls have been registered, the ``No tailcall registered!`` line will hit.
 
-By running the ``add_tailcall.exe`` utility you will see (from cat-ting ``/sys/kernel/tracing/trace_pipe``)
-that [this](tailcall_kern.c) method is called.
+By running the ``add_tailcall.exe`` utility you will see (from cat-ting ``/sys/kernel/tracing/trace_pipe``) [this](tailcall_kern.c) method is now called.
 
-This simple example doesn't illustrate the power of this technique; I imaging its
-
-very useful if you want to attach dynamic eBPF programs to a qdisc filter:
+This simple example doesn't illustrate the power of this technique; I imaging it's very useful if you want to attach dynamic eBPF programs to a qdisc filter:
 
 ```
 tc filter ... bpf <TrampolineBpfMethod> ...
 ```
 
-If this ``TrampolineBpfMethod`` has a tailcall hooks then you could modify this filtering
-behavior *without* having to do touch the qdisc settings.
-
-
-
-
+If this ``TrampolineBpfMethod`` has a tailcall hooks then you could modify this filtering behavior *without* having to do touch the qdisc settings.
