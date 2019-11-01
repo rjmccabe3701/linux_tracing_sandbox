@@ -53,6 +53,8 @@ And obtained the ID (this is used to link the kprobe to the BPF program).
       printf("Could not load bpf prog: %s\n", strerror(errno));
       return -1;
    }
+      
+   //TODO: this could all be replaced by "bpf_program__attach_kprobe" from libbpf
 
    perf_attr.config = id;
    perf_fd = syscall(__NR_perf_event_open, &perf_attr, -1/*pid*/, 0/*cpu*/, -1/*group_fd*/, 0);
