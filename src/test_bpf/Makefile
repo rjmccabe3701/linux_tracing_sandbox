@@ -1,11 +1,16 @@
 LLC ?= llc
 CLANG ?= clang
+CXX ?= g++
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-INCLUDE_PATHS := /usr/local/include /usr/local/include /usr/include
+INCLUDE_PATHS := /usr/include
+# INCLUDE_PATHS := /usr/local/include /usr/include
 # INCLUDE_PATHS += /usr/include/bcc/compat
 
-COMMON_FLAGS := $(foreach dir,$(INCLUDE_PATHS),-I$(TRACE_INSTALL_DIR)/$(dir))
-LD_FLAGS = -L$(TRACE_INSTALL_DIR)/usr/lib64
+STAGING_DIR ?= $(TRACE_INSTALL_DIR)
+
+COMMON_FLAGS := $(foreach dir,$(INCLUDE_PATHS),-I$(STAGING_DIR)/$(dir))
+# LD_FLAGS = -L$(STAGING_DIR)/usr/lib64 -L$(STAGING_DIR)/usr/lib
+LD_FLAGS = -L$(STAGING_DIR)/usr/lib64
 
 all: MK_BUILD_DIR build/test_load.exe build/add_tailcall.exe build/_TableReader.so
 

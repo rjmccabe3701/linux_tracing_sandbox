@@ -17,8 +17,10 @@
 
 #include <chrono>
 #include <thread>
+#ifdef SHOW_TRAFFIC_STATS
 #include <bcc/BPFTable.h>
 #include <bcc/file_desc.h>
+#endif
 
 static int libbpf_debug_print(enum libbpf_print_level level,
       const char *format, va_list args)
