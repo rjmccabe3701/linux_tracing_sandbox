@@ -1,0 +1,28 @@
+version: '2'
+# https://serversforhackers.com/dockerized-app/compose-separated
+
+services:
+  radio1:
+    extends:
+      file: container.yml
+      service: radio
+    environment:
+      CONTAINER_NUM: "1"
+
+  radio2:
+    extends:
+      file: container.yml
+      service: radio
+    environment:
+      CONTAINER_NUM: "2"
+
+  radio3:
+    extends:
+      file: container.yml
+      service: radio
+    environment:
+      CONTAINER_NUM: "3"
+
+networks:
+  radionet:
+    driver: "bridge"

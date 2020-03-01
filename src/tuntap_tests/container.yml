@@ -1,0 +1,13 @@
+version: '2'
+services:
+  radio:
+    build: .
+    # ports:
+      # - "8000:8000"
+    volumes:
+       - .:/src
+    command: tail -f /dev/null
+    privileged: true
+    networks:
+      - radionet
+
