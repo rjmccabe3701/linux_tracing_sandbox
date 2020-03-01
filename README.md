@@ -11,7 +11,7 @@ git clone https://github.com/iovisor/bcc.git tools/bcc
 #Kernel
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
 #libbpf
-git clone https://github.com/libbpf/libbpf.git
+git clone https://github.com/libbpf/libbpf.git tools/libbpf
 
 #Fixup versions
 #git -C tools/iproute2 remote add https://github.com/rjmccabe3701/iproute2.git
@@ -33,10 +33,25 @@ git clone git://git.netfilter.org/libnftnl tools/libnftnl
 
 ** Build tools (iproute2, kernel bpf and perf tools) **
 
+First need these prerequisites:
+
+```
+sudo dnf install asciidoc xmlto bison  elfutils-libelf-devel openssl-devel \ 
+    slang-devel gtk2-devel xz-devel libzstd-devel libpcap-devel numactl-devel \
+    libbabeltrace-devel elfutils-devel libunwind-devel binutils-devel \
+    libcap-devel python3-devel python2-devel readline-devel libmnl-devel
+
+#This is assuming a fedora host machine, change as appropriate.
+
+```
+
+
+
 ```bash
 make
 source ./set_env
 ```
+
 
 
 To build bcc do this:

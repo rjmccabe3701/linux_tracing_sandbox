@@ -77,6 +77,7 @@ clean:
 	make -C $(LINUXTOOLS)/perf clean; \
 	make -C $(LINUXTOOLS)/bpf clean; \
 	make -C $(PWD)/linux/samples/bpf clean; \
+	make -C $(TOOLS)/libbpf/src clean; \
 	make -C $(TOOLS)/iproute2 clean; \
 	if [ -d $(TOOLS)/iptables ]; then \
 		make -C $(TOOLS)/iptables distclean; \

@@ -82,6 +82,14 @@ these examples**.
 
 # Running the example:
 
+You will need the following prerequisite packaged before you build:
+
+```
+clang
+clang-tools-extra
+llvm
+```
+
 To build just run ``make`` in this directory.  Then run ``test_load.exe``.  After doing this you should see:
 
 
@@ -140,7 +148,7 @@ If no tailcalls have been registered, the ``No tailcall registered!`` line will 
 
 By running the ``add_tailcall.exe`` utility you will see (from cat-ting ``/sys/kernel/tracing/trace_pipe``) [this](tailcall_kern.c) method is now called.
 
-This simple example doesn't illustrate the power of this technique; I imaging it's very useful if you want to attach dynamic eBPF programs to a qdisc filter:
+This simple example doesn't illustrate the power of this technique; I imagine it's very useful if you want to attach dynamic eBPF programs to a qdisc filter:
 
 ```
 tc filter ... bpf <TrampolineBpfMethod> ...
