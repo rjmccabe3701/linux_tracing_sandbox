@@ -70,3 +70,15 @@ make install
 ## Reading list
 
 http://www.brendangregg.com/ebpf.html
+
+
+Makefile.config:360: No libelf found. Disables 'probe' tool, jvmti and BPF support in 'perf record'. Please install libelf-dev, libelf-devel or elfutils-libelf-devel
+Makefile.config:572: Disabling post unwind, no support found.
+Makefile.config:637: No libcrypto.h found, disables jitted code injection, please install openssl-devel or libssl-dev
+Makefile.config:653: slang not found, disables TUI support. Please install slang-devel, libslang-dev or libslang2-dev
+Makefile.config:670: GTK2 not found, disables GTK2 support. Please install gtk2-devel or libgtk2.0-dev
+Makefile.config:813: No liblzma found, disables xz kernel module decompression, please install xz-devel/liblzma-dev
+Makefile.config:826: No libzstd found, disables trace compression, please install libzstd-dev[el] and/or set LIBZSTD_DIR
+Makefile.config:837: No libcap found, disables capability support, please install libcap-devel/libcap-dev
+Makefile.config:850: No numa.h found, disables 'perf bench numa mem' benchmark, please install numactl-devel/libnuma-devel/libnuma-dev
+Makefile.config:905: No libbabeltrace found, disables 'perf data' CTF format support, please install libbabeltrace-dev[el]/libbabeltrace-ctf-dev
