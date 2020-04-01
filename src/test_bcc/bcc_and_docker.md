@@ -45,3 +45,36 @@ Detaching...
 
 ```
 
+
+Trying to figure out why system calls are failing for a process:
+
+```bash
+-> % sudo ./syscount -x -p 17869
+Tracing failed syscalls, printing top 10... Ctrl+C to quit.
+^C[23:35:40]
+SYSCALL                   COUNT
+openat                      951
+stat                        896
+
+-> % sudo ./trace -p 17869   \
+   't:syscalls:sys_enter_newstat "filename = %s", args->filename' \
+   't:syscalls:sys_exit_newstat (args->ret < 0) "bad stat ret = %d", args->ret'
+```
+
+This shows the USDT probes for a process in the docker container:
+
+```
+-> % sudo ./tplist -p 23764
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowatan2
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowatan2_inexact
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowlog_inexact
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowlog
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowatan_inexact
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowatan
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowtan
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowasin
+/proc/23764/root/lib/x86_64-linux-gnu/libm-2.27.so libm:slowacos
+/proc/23764/root/lib/x86_64-linux-gnu/libpthread-2.27.so libpthread:mutex_acquired
+...
+```
+
