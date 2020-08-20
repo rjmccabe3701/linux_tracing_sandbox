@@ -15,10 +15,14 @@ git clone https://github.com/libbpf/libbpf.git tools/libbpf
 
 #Fixup versions
 #git -C tools/iproute2 remote add https://github.com/rjmccabe3701/iproute2.git
-git -C tools/iproute2 checkout v5.3.0
-git -C linux checkout v5.3
+git -C tools/iproute2 checkout v5.4.0
+git -C linux checkout v5.4
 cp  /boot/config-$(uname -r) linux/.config
+yes n | make -C linux oldconfig
 
+
+#For some reason this version doesn't build the bpf examples
+echo "subdir-y += bpf" >> linux/samples/Makefile
 ```
 
 **Optional Repos**
@@ -36,7 +40,7 @@ git clone git://git.netfilter.org/libnftnl tools/libnftnl
 First need these prerequisites:
 
 ```
-sudo dnf install asciidoc xmlto bison  elfutils-libelf-devel openssl-devel \ 
+sudo dnf install asciidoc xmlto bison  elfutils-libelf-devel openssl-devel \
     slang-devel gtk2-devel xz-devel libzstd-devel libpcap-devel numactl-devel \
     libbabeltrace-devel elfutils-devel libunwind-devel binutils-devel \
     libcap-devel python3-devel python2-devel readline-devel libmnl-devel
@@ -46,39 +50,39 @@ sudo dnf install asciidoc xmlto bison  elfutils-libelf-devel openssl-devel \
 ```
 
 
-
 ```bash
 make
 source ./set_env
 ```
 
-
-
-To build bcc do this:
+## Building BCC
 
 ```
-sudo apt-get -y install bison build-essential cmake flex git libedit-dev \
-  libllvm6.0 llvm-6.0-dev libclang-6.0-dev python zlib1g-dev libelf-dev
-cd tools/bcc
-mkdir build; cd build
-cmake ../ -DCMAKE_INSTALL_PREFIX=$(pwd)/../../../install
+sudo apt install -y bison build-essential cmake flex git libedit-dev \
+  libllvm7 llvm-7-dev libclang-7-dev python zlib1g-dev libelf-dev
+
+INSTALL_DIR=$(pwd)/install
+mkdir tools/bcc/build
+pushd tools/bcc/build
+cmake .. -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
 make -j
 make install
+cmake -DPYTHON_CMD=python3 .. -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
+pushd src/python/
+make -j
+make install
+popd
+popd
+
+export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
+export PYTHONPATH=${INSTALL_DIR}/lib/python3/dist-packages
 ```
+
+See [this](https://github.com/iovisor/bcc/issues/2915) if you get link errors
 
 
 ## Reading list
 
 http://www.brendangregg.com/ebpf.html
-
-
-Makefile.config:360: No libelf found. Disables 'probe' tool, jvmti and BPF support in 'perf record'. Please install libelf-dev, libelf-devel or elfutils-libelf-devel
-Makefile.config:572: Disabling post unwind, no support found.
-Makefile.config:637: No libcrypto.h found, disables jitted code injection, please install openssl-devel or libssl-dev
-Makefile.config:653: slang not found, disables TUI support. Please install slang-devel, libslang-dev or libslang2-dev
-Makefile.config:670: GTK2 not found, disables GTK2 support. Please install gtk2-devel or libgtk2.0-dev
-Makefile.config:813: No liblzma found, disables xz kernel module decompression, please install xz-devel/liblzma-dev
-Makefile.config:826: No libzstd found, disables trace compression, please install libzstd-dev[el] and/or set LIBZSTD_DIR
-Makefile.config:837: No libcap found, disables capability support, please install libcap-devel/libcap-dev
-Makefile.config:850: No numa.h found, disables 'perf bench numa mem' benchmark, please install numactl-devel/libnuma-devel/libnuma-dev
-Makefile.config:905: No libbabeltrace found, disables 'perf data' CTF format support, please install libbabeltrace-dev[el]/libbabeltrace-ctf-dev
+https://github.com/cilium/ebpf
+http://vger.kernel.org/lpc-bpf2018.html#session-3

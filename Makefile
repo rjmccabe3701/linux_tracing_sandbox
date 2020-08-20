@@ -4,23 +4,27 @@ DESTDIR=$(shell pwd)/install
 LINUXTOOLS=$(shell pwd)/linux/tools
 TOOLS=$(shell pwd)/tools
 
-TARGETS:=perf bpftools iproute2 \
+TARGETS:=bpftools iproute2 \
 	kernel_bpf_samples libbpf \
 	set_env
 
-# TARGETS:=perf bpftools iproute2 \
-	# kernel_bpf_samples iptables nftables libnftnl \
-	# set_env
+# TARGETS+=perf
 
-ifneq ($(wildcard $(TOOLS)/iptables),)
-	TARGETS:=$(TARGETS) iptables
+OPTIONAL_TARGETS:=iptables \
+	nftables \
+	libnftnl
+
+define ADD_TARGET
+ifneq ($(wildcard $(TOOLS)/$(1)),)
+	$(info "here with $(TOOLS)/$(1)")
+	TARGETS:=$(TARGETS) $(1)
 endif
-ifneq ($(wildcard $(TOOLS)/nftables),)
-	TARGETS:=$(TARGETS) nftables
-endif
+endef
+
+$(foreach prog,$(OPTIONAL_TARGETS),$(eval $(call ADD_TARGET,$(prog))))
 
 
-EXTRA_CFLAGS='-O0 -g -Wall'
+# EXTRA_CFLAGS='-O0 -g -Wall'
 # EXTRA_CFLAGS=''
 
 all: $(TARGETS)
@@ -57,7 +61,7 @@ libnftnl:
 		make -j && make install
 
 kernel_bpf_samples: linux_headers_install
-	make LLC=/usr/bin/llc-6.0 -C $(PWD)/linux/samples/bpf -j
+	make LLC=/usr/bin/llc-10 -C $(PWD)/linux samples/bpf/
 
 linux_headers_install:
 	make -C $(PWD)/linux INSTALL_HDR_PATH=$(DESTDIR)/usr headers_install
@@ -67,8 +71,9 @@ set_env: FORCE
 		export MANPATH=$(DESTDIR)/usr/share/man:$$MANPATH
 		export PATH=$(DESTDIR)/sbin:$(DESTDIR)/bin:$(DESTDIR)/usr/local/bin:$(DESTDIR)/usr/local/sbin:$$PATH
 		export TRACE_INSTALL_DIR=$(DESTDIR)
-		export LD_LIBRARY_PATH=$(DESTDIR)/usr/local/lib64
-		export PERF_EXEC_PATH=$(DESTDIR)/libexec/perf-core
+		export LD_LIBRARY_PATH=$(DESTDIR)/usr/local/lib64:$(DESTDIR)/lib
+		export PERF_EXEC_PATH=$(DESTDIR)/libexec/perf-core:
+		export PYTHONPATH=$(DESTDIR)/lib/python3/dist-packages
 	EOF
 
 clean:
