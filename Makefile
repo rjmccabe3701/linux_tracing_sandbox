@@ -16,7 +16,7 @@ OPTIONAL_TARGETS:=iptables \
 
 define ADD_TARGET
 ifneq ($(wildcard $(TOOLS)/$(1)),)
-	$(info "here with $(TOOLS)/$(1)")
+	$(info "Found $(TOOLS)/$(1)")
 	TARGETS:=$(TARGETS) $(1)
 endif
 endef
@@ -39,7 +39,7 @@ bpftools:
 	make -j -C $(LINUXTOOLS)/bpf QUIET_CC= EXTRA_CFLAGS=$(EXTRA_CFLAGS) DESTDIR=$(DESTDIR) install bpftool_install
 
 libbpf:
-	make -j -C $(TOOLS)/libbpf/src BUILD_STATIC_ONLY=y DESTDIR=$(DESTDIR) install
+	make -j -C $(TOOLS)/libbpf/src BUILD_STATIC_ONLY=y DESTDIR=$(DESTDIR) UAPIDIR=/usr/include/bpf/compat install install_uapi_headers
 
 iproute2:
 	$(TOOLS)/iproute2/configure

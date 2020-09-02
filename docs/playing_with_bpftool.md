@@ -123,3 +123,29 @@ filter protocol all pref 49152 bpf chain 0 handle 0x1 test_kern.o:[dummy_socket_
 *NOTE: I cannot figure out how to get ``tc filter ...`` to take a ``object-pined`` arg
 
 
+
+---
+
+## Example: pinning and cgroup eBPF programs
+
+```bash
+#Create new cgroup (v2)
+mkdir /sys/fs/cgroup/unified/pinnedProg
+
+#Load and pin program (from the kernel bpf samples)
+prog load ./tcp_tos_reflect_kern.o /sys/fs/bpf/pinnedProg
+
+#Attach program to cgroup/sock_ops
+bpftool cgroup attach /sys/fs/cgroup/unified/pinnedProg sock_ops pinned /sys/fs/bpf/pinnedProg
+
+#Show cgroup attachment
+bpftool cgroup list /sys/fs/cgroup/unified/pinnedProg/
+	ID       AttachType      AttachFlags     Name
+	12873    sock_ops                        bpf_basertt
+
+#Detach program
+bpftool cgroup detach /sys/fs/cgroup/unified/pinnedProg sock_ops pinned /sys/fs/bpf/pinnedProg
+
+#Unpin (removes from kernel as there are no more references to the program)
+rm /sys/fs/bpf/pinnedProg
+```

@@ -62,12 +62,6 @@ Which attaches a uprobe:
     */
 ```
 
-
-# libbcc
-
-How does this relate to the kernels tools/lib/bpf/libbpf.h?
-
-
 # bpftool:
 
 ```
@@ -240,12 +234,15 @@ Return probe on arbitary C method:
 
 Entering docker network namespace:
 
- nsenter -t 32646 -n ss -lp
- nsenter -t 32646 -n tcpdump -i eth0 -ln
-
+```
+nsenter -t 32646 -n ss -lp
+nsenter -t 32646 -n tcpdump -i eth0 -ln
+```
  OR
 
+```
 nsenter --net=/run/netns/ns2 <command>
+```
 
 Where /run/netns/ns2 is a pinned namespace file (could be created by ``sudo ip netns add ns1``)
 
@@ -305,10 +302,3 @@ Now you can do this:
 ```
    sudo ip netns exec host-2 ip address show
 ```
-
-
-
-
-
-
-
