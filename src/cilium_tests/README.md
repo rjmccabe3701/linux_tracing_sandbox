@@ -1,8 +1,12 @@
-Installing Cilium on microk8s
+#Playing with Cilium
+
+
+## Installing Cilium on microk8s
 
 See:
 https://github.com/ubuntu/microk8s/blob/master/microk8s-resources/actions/enable.cilium.sh
 
+```bash
 #Need to run without http proxy vars otherwise, the dns service gets mad
 http_proxy= https_proxy= HTTP_PROXY= HTTPS_PROXY= snap run microk8s.start
 
@@ -14,21 +18,24 @@ microk8s kubectl -n kube-system edit configmap/coredns
 
 #Enable cilium (can change cilium version with the ":" arg)
 sudo /snap/bin/microk8s.enable cilium:v1.8
+```
 
+Running the cilium cmd line tool outside a continer:
 
-Runnint the cilium cmd line tool outside a continer:
-
+```bash
 alias cilium='CILIUM_HEALTH_SOCK=/var/snap/microk8s/current/var/run/cilium/health.sock \
 CILIUM_MONITOR_SOCK=/var/snap/microk8s/current/var/run/cilium/monitor1_2.sock \
 CILIUM_SOCK=/var/snap/microk8s/current/var/run/cilium/cilium.sock \
    ~/go/src/github.com/cilium/cilium/examples/getting-started/cilium'
 
 cilium status
+```
 
 ----
 
 Trying to figure out how cilium attached ebpf programs:
 
+```
    sudo bpftool net list
    xdp:
 
@@ -48,23 +55,29 @@ Trying to figure out how cilium attached ebpf programs:
    lxca5c9a6d90e69(964) clsact/ingress bpf_lxc.o:[from-container] id 12122
 
    flow_dissector:
+```
+   
 
 Looks like it puts them on ingress/egress qdiscs
 
+```
    sudo tc filter show dev lxcf221c8fd6baa ingress
    filter protocol all pref 1 bpf chain 0
    filter protocol all pref 1 bpf chain 0 handle 0x1 bpf_lxc.o:[from-container] direct-action not_in_hw id 12110
    tag ae4beb8ed518b348 jited
+```
 
 These interfaces are veths (not sure where their other end lives)
 
+```
     cilium debuginfo | grep state-dir
 
     state-dir:/var/run/cilium
-
+```
 
 In the cilium-agent container:
 
+```
  root@gauss:/var/run/cilium/state# find . -name '*.o'
  ./bpf_overlay.o
  ./4000/bpf_lxc.o
@@ -87,7 +100,7 @@ In the cilium-agent container:
  ./135/bpf_netdev_eno1np0.o
  ./templates/6c1097c4abca946a16b9386fe6b50633cd71342d/bpf_lxc.o
  ./templates/5401ce0a2b3a7c5b0c29e8e2c3c4664d555b57ad/bpf_host.o
-
+```
 
 Looks like cilium compiles these templates:
 https://github.com/cilium/cilium/blob/master/bpf/bpf_lxc.c
@@ -104,6 +117,7 @@ CNI stuff
 
 Looks like k8s used the CNI protocol to talk to cilium's CNI plugin:
 
+```
    -> % cat /var/snap/microk8s/1609/args/cni-network/05-cilium-cni.conf
    {
       "cniVersion": "0.3.1",
@@ -112,9 +126,9 @@ Looks like k8s used the CNI protocol to talk to cilium's CNI plugin:
       "enable-debug": true
    }
 
-
    -> % /var/snap/microk8s/1609/opt/cni/bin/cilium-cni
    Cilium CNI plugin 1.8.2 aa42034f0 2020-07-23T15:02:39-07:00 go version go1.14.6 linux/amd64
+```
 
 Cilium's [cni-plugin](https://github.com/cilium/cilium/blob/master/plugins/cilium-cni/cilium-cni.go) sets
 itself up to react to JSON-formatted stdin commands from k8s:
@@ -143,6 +157,9 @@ both?
 
 ----
 
+Nifty way to run apply a kubectl file on the command line:
+
+```
 -> % kk apply -f <(
 cat << EOF
 apiVersion: apps/v1
@@ -171,6 +188,7 @@ spec:
 EOF
 )
 deployment.apps/nginx-deployment created
+```
 
 
 
@@ -184,9 +202,13 @@ Or do this:
 /snap/bin/helm --kubeconfig=/var/snap/microk8s/current/credentials/client.config ls
 
 
+Misc notes:
+
+
 
 Playing with installing hubble
 
+```
 SNAP_DATA=/var/snap/microk8s/current
 SNAP_COMMON=/var/snap/microk8s/common
 
@@ -209,11 +231,10 @@ SNAP_COMMON=/var/snap/microk8s/common
    --set global.hubble.listenAddress=":4244" \
    --set global.hubble.relay.enabled=true \
    --set global.hubble.ui.enabled=true
-
-Misc notes:
-
+```
 
 
+```
 -> % sudo /snap/bin/microk8s.reset
 Disabling all addons.
 Disabling addon : ambassador
@@ -244,3 +265,4 @@ All addons disabled.
 
 #NOTE: enabling cilium disables flannel ...
 sudo touch /var/snap/microk8s/current/var/lock/no-flanneld
+```
