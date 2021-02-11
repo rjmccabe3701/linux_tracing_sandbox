@@ -243,6 +243,8 @@ Note sure I understand completely, but it seems ``load_{byte,half,word}`` helper
 Bpf programs/maps are global to the system (doing a ``bpf prog/map show`` shows any prog/map created in any container or on the raw host)
 The ``/sys/fs/bpf`` mount isn't shared however, so pinning a map to ``/sys/fs/bpf`` in a container does not pin it to the host.
 
+This is a [good talk](https://www.youtube.com/watch?v=OxLmd7szevI&t=2721s) on using uprobes to trace golang programs. [Here](https://petermalmgren.com/docker-mac-bpf-perf/) are instructions for running on a MAC (with docker-desktop)
+
 ---
 
 # Unsolved
