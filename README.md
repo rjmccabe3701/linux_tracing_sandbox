@@ -86,3 +86,8 @@ See [this](https://github.com/iovisor/bcc/issues/2915) if you get link errors
 http://www.brendangregg.com/ebpf.html
 https://github.com/cilium/ebpf
 http://vger.kernel.org/lpc-bpf2018.html#session-3
+
+
+## Tracing on a MAC with Docker Desktop
+
+See [this](https://github.com/iovisor/bcc/issues/3276)
